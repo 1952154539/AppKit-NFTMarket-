@@ -9,6 +9,9 @@ import "../src/NFTMarket.sol";
 contract Deploy is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        address deployer = vm.addr(deployerPrivateKey);
+        console.log("Deployer address:", deployer);
+
         vm.startBroadcast(deployerPrivateKey);
 
         BaseERC20 token = new BaseERC20("MyToken", "MTK", 1_000_000 * 10**18);
@@ -20,11 +23,11 @@ contract Deploy is Script {
         NFTMarket market = new NFTMarket(address(token));
         console.log("NFTMarket deployed at:", address(market));
 
-        // Mint some NFTs for testing
-        nft.mint(msg.sender, "ipfs://QmTest1");
-        nft.mint(msg.sender, "ipfs://QmTest2");
-        nft.mint(msg.sender, "ipfs://QmTest3");
-        console.log("Minted 3 test NFTs to deployer");
+        // Mint some NFTs for testing to the deployer address
+        nft.mint(deployer, "ipfs://QmTest1");
+        nft.mint(deployer, "ipfs://QmTest2");
+        nft.mint(deployer, "ipfs://QmTest3");
+        console.log("Minted 3 test NFTs to:", deployer);
 
         vm.stopBroadcast();
     }
