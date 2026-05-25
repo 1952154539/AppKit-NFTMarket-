@@ -7,6 +7,8 @@ import {
   useWriteContract,
   useWaitForTransactionReceipt,
   useBalance,
+  useChainId,
+  useSwitchChain,
 } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import NFTMarketABI from '@/contracts/NFTMarket.json';
@@ -19,6 +21,9 @@ const CHAIN_ID = sepolia.id;
 
 export default function NFTMarketPage() {
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const isCorrectChain = chainId === CHAIN_ID;
 
   // Contract addresses
   const nftMarketAddr = getContractAddress(CHAIN_ID, 'NFTMarket');
@@ -40,7 +45,7 @@ export default function NFTMarketPage() {
     address,
     token: tokenAddr as `0x${string}`,
     chainId: CHAIN_ID,
-    query: { enabled: isConnected },
+    query: { enabled: isConnected && isCorrectChain },
   });
 
   // Read active listings
@@ -49,7 +54,7 @@ export default function NFTMarketPage() {
     abi: NFTMarketABI,
     functionName: 'getActiveListings',
     chainId: CHAIN_ID,
-    query: { enabled: isConnected },
+    query: { enabled: isConnected && chainId === CHAIN_ID },
   });
 
   // Read listing counter
@@ -58,7 +63,7 @@ export default function NFTMarketPage() {
     abi: NFTMarketABI,
     functionName: 'listingCounter',
     chainId: CHAIN_ID,
-    query: { enabled: isConnected },
+    query: { enabled: isConnected && chainId === CHAIN_ID },
   });
 
   // Write contracts
@@ -254,7 +259,18 @@ export default function NFTMarketPage() {
           <p className="text-gray-600">Trade NFTs using ERC20 tokens</p>
           {tokenBalance && (
             <div className="mt-2 inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
-              Balance: {Number(tokenBalance.formatted).toFixed(2)} {tokenBalance.symbol}
+              Balance: {tokenBalance.formatted ? Number(tokenBalance.formatted).toFixed(2) : '0.00'} {tokenBalance.symbol || 'MTK'}
+            </div>
+          )}
+          {!isCorrectChain && isConnected && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 mb-2">Wrong network! Please switch to Sepolia.</p>
+              <button
+                onClick={() => switchChain({ chainId: CHAIN_ID })}
+                className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Switch to Sepolia
+              </button>
             </div>
           )}
         </div>
