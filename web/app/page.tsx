@@ -193,6 +193,43 @@ export default function NFTMarketPage() {
     }
   };
 
+  // Mint test NFT (public function, anyone can call)
+  const handleMintNFT = async () => {
+    if (!address) return;
+    try {
+      setTxStatus('Minting NFT...');
+      const hash = await writeContractAsync({
+        address: nftAddr as `0x${string}`,
+        abi: SimpleNFTABI,
+        functionName: 'mint',
+        args: [address, `ipfs://test-${Date.now()}`],
+        chainId: CHAIN_ID,
+      });
+      setTxHash(hash);
+      setTxStatus(`NFT minted! Hash: ${hash.slice(0, 10)}...`);
+    } catch (err: any) {
+      setTxStatus(`Error: ${err.message}`);
+    }
+  };
+
+  // Approve all NFTs for market (setApprovalForAll)
+  const handleApproveAllNFT = async () => {
+    try {
+      setTxStatus('Approving all NFTs for market...');
+      const hash = await writeContractAsync({
+        address: nftAddr as `0x${string}`,
+        abi: SimpleNFTABI,
+        functionName: 'setApprovalForAll',
+        args: [nftMarketAddr, true],
+        chainId: CHAIN_ID,
+      });
+      setTxHash(hash);
+      setTxStatus(`Approval sent! Hash: ${hash.slice(0, 10)}...`);
+    } catch (err: any) {
+      setTxStatus(`Error: ${err.message}`);
+    }
+  };
+
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -240,8 +277,36 @@ export default function NFTMarketPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: List NFT Form */}
+          {/* Left: List NFT Form & Dev Tools */}
           <div className="lg:col-span-1">
+            {/* Dev Tools */}
+            <div className="bg-white rounded-lg shadow p-6 mb-4 border border-orange-200">
+              <h2 className="text-xl font-bold text-orange-600 mb-3">Dev Tools</h2>
+              <p className="text-xs text-gray-500 mb-4">
+                Mint test NFTs and approve the market contract. Use these to prepare your account before listing.
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={handleMintNFT}
+                  disabled={isPending}
+                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  {isPending ? 'Processing...' : 'Mint Test NFT'}
+                </button>
+                <button
+                  onClick={handleApproveAllNFT}
+                  disabled={isPending}
+                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  {isPending ? 'Processing...' : 'Approve All NFTs for Market'}
+                </button>
+                <div className="text-xs text-gray-400 mt-2">
+                  <p>Tip: If you need test tokens, deploy your own BaseERC20 contract to get 1,000,000 MTK as the deployer.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* List NFT Form */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">List NFT</h2>
               <div className="space-y-4">
