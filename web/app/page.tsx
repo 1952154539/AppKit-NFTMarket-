@@ -6,7 +6,6 @@ import {
   useReadContract,
   useWriteContract,
   useWaitForTransactionReceipt,
-  useBalance,
   useChainId,
   useSwitchChain,
 } from 'wagmi';
@@ -40,10 +39,12 @@ export default function NFTMarketPage() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [txStatus, setTxStatus] = useState('');
 
-  // Read token balance
-  const { data: tokenBalance } = useBalance({
-    address,
-    token: tokenAddr as `0x${string}`,
+  // Read token balance (use readContract instead of useBalance for reliability)
+  const { data: rawBalance } = useReadContract({
+    address: tokenAddr as `0x${string}`,
+    abi: BaseERC20ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
     chainId: CHAIN_ID,
     query: { enabled: isConnected && isCorrectChain },
   });
@@ -257,9 +258,9 @@ export default function NFTMarketPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">NFT Market</h1>
           <p className="text-gray-600">Trade NFTs using ERC20 tokens</p>
-          {tokenBalance && (
+          {rawBalance !== undefined && (
             <div className="mt-2 inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
-              Balance: {tokenBalance.formatted ? Number(tokenBalance.formatted).toFixed(2) : '0.00'} {tokenBalance.symbol || 'MTK'}
+              Balance: {Number(formatEther(rawBalance as bigint)).toFixed(2)} MTK
             </div>
           )}
           {!isCorrectChain && isConnected && (
