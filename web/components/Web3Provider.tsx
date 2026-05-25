@@ -2,20 +2,13 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-import { config } from '@/lib/wagmi';
+import { config, wagmiAdapter } from '@/lib/wagmi';
 import { createAppKit } from '@reown/appkit/react';
 import { sepolia } from '@reown/appkit/networks';
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 
 const queryClient = new QueryClient();
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'YOUR_PROJECT_ID';
-
-const wagmiAdapter = new WagmiAdapter({
-  networks: [sepolia],
-  projectId,
-  ssr: true,
-});
 
 createAppKit({
   adapters: [wagmiAdapter],
@@ -24,8 +17,8 @@ createAppKit({
   metadata: {
     name: 'NFT Market',
     description: 'NFT Marketplace using ERC20 tokens',
-    url: 'https://nftmarket.example.com',
-    icons: ['https://nftmarket.example.com/logo.png'],
+    url: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000',
+    icons: [],
   },
   features: {
     analytics: true,
