@@ -1,5 +1,9 @@
 # AppKit NFT Market
 
+<p align="center">
+  <img src="screenshot-market.png" alt="NFT Market Screenshot" width="800" />
+</p>
+
 A decentralized NFT marketplace DApp built with **Next.js**, **AppKit (Reown)**, and **Solidity smart contracts**. Users can connect their wallet via WalletConnect, list NFTs for sale, and purchase NFTs using ERC20 tokens on the Sepolia testnet.
 
 ## Features
